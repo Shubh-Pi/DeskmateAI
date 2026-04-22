@@ -1,0 +1,21 @@
+{
+  "username": "Shubh",
+  "password_hash": "$2b$12$kVxe7ZIKHCaVB9CwBUgUkun8.3Mllh3dXLCVm0GV.Ne3P7bLzfCLC",
+  "language": "en",
+  "language_name": "English",
+  "wake_word": "hey deskmate",
+  "wake_word_sensitivity": 0.6,
+  "is_admin": true,
+  "added_by": "self",
+  "registered_at": "2026-03-22 16:28:14",
+  "last_login": null,
+  "auth_methods": [
+    "password"
+  ],
+  "face_samples": 0,
+  "speaker_samples": 0,
+  "voice_passphrase": null,
+  "voice_passphrase_language": "en",
+  "registration_complete": false,
+  "password_registered_at": "2026-03-22 16:28:14"
+}
