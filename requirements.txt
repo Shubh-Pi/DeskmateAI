@@ -1,35 +1,49 @@
+# Core ML / Speech
 numpy==1.26.4
 torch==2.2.2+cpu
 torchvision==0.17.2+cpu
 ctranslate2==4.7.1
 faster-whisper==1.2.1
 transformers==4.40.0
+sentence-transformers
 sentencepiece
 tokenizers
 huggingface_hub
-sentence-transformers
+
+# Audio
 sounddevice
 soundfile
 scipy
+noisereduce
+resemblyzer
+librosa
+
+# Vision / OCR
+opencv-python==4.8.1.78
+deepface==0.0.79
+easyocr==1.7.1
+
+# Security
+bcrypt
 scikit-learn
+
+# UI
 PyQt6
+pystray
+Pillow
+
+# Automation
 pyautogui
 pyperclip
 pywinauto
-opencv-python==4.8.1.78
-resemblyzer
-deepface==0.0.79
-noisereduce
-bcrypt
-easyocr==1.7.1
+pyttsx3
 screen-brightness-control
 pywin32
-pyttsx3
 pycaw
 comtypes
+
+# System
 psutil
 requests
 ollama
-librosa
-Pillow
 tqdm
