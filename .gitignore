@@ -20,3 +20,9 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+*.log
+*.wav
+*.npy
+*.zip
+backend/data/users/
