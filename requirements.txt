@@ -4,11 +4,11 @@ torch==2.2.2+cpu
 torchvision==0.17.2+cpu
 ctranslate2==4.7.1
 faster-whisper==1.2.1
-transformers==4.40.0
 sentence-transformers
 sentencepiece
-tokenizers
-huggingface_hub
+transformers==4.40.0
+tokenizers==0.19.1
+huggingface_hub==0.23.4
 
 # Audio
 sounddevice
