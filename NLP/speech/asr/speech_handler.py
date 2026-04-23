@@ -180,19 +180,20 @@ class SpeechHandler:
 
     # ── Transcribe ────────────────────────────────────────────
     def _get_initial_prompt(self):
-        if self._prompt is not None:
-            return self._prompt
         try:
-            from NLP.nlp.intent_pipeline import get_intent_pipeline
-            pipeline = get_intent_pipeline()
-            examples = []
-            for intent, example_list in pipeline._sbert._intent_examples.items():
-                if example_list:
-                    examples.append(example_list[0])
-            self._prompt = ". ".join(examples[:20])
-            return self._prompt
+            from backend.core.context import get_context
+            lang = get_context().get_language()
         except:
-            return None
+            lang = 'en'
+
+        prompts = {
+            'en':       "Voice assistant commands: open, close, play, stop, search, volume.",
+            'hi':       "वॉयस असिस्टेंट कमांड: खोलो, बंद करो, चलाओ, रोको, खोजो, वॉल्यूम।",
+            'mr':       "व्हॉइस असिस्टंट कमांड: उघडा, बंद करा, चालवा, थांबवा, शोधा.",
+            'hinglish': "Hinglish voice commands: open karo, band karo, volume badhao, search karo.",
+            'minglish': "Minglish voice commands: open kara, band kara, volume vaddhav, search kara.",
+        }
+        return prompts.get(lang, prompts['en'])
     def transcribe(self, audio, language='en'):
         """
         Transcribe audio to text using Whisper small
@@ -321,9 +322,11 @@ class SpeechHandler:
     def get_supported_languages(self):
         """Get list of supported languages"""
         return {
-            'en': 'English',
-            'hi': 'Hindi',
-            'mr': 'Marathi'
+            'en':       'English',
+            'hi':       'Hindi',
+            'mr':       'Marathi',
+            'hinglish': 'Hinglish (Hindi+English)',
+            'minglish': 'Minglish (Marathi+English)',
         }
 
     def detect_language(self, audio):

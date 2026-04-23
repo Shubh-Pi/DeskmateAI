@@ -324,7 +324,7 @@ class BasicInfoStep(QWidget):
         layout.addWidget(lang_label)
 
         self.language_combo = QComboBox()
-        self.language_combo.addItems(["English", "Hindi", "Marathi"])
+        self.language_combo.addItems(["English", "Hindi", "Marathi", "Hinglish (Hindi+English)", "Minglish (Marathi+English)"])
         self.language_combo.setFixedHeight(46)
         self.language_combo.setStyleSheet(f"""
             QComboBox {{
@@ -372,7 +372,9 @@ class BasicInfoStep(QWidget):
         lang_map = {
             "English": ("en", "English"),
             "Hindi": ("hi", "Hindi"),
-            "Marathi": ("mr", "Marathi")
+            "Marathi": ("mr", "Marathi"),
+            "Hinglish (Hindi+English)": ("hinglish", "Hinglish"),
+            "Minglish (Marathi+English)": ("minglish", "Minglish"),
         }
         lang_text = self.language_combo.currentText()
         lang_code, lang_name = lang_map[lang_text]

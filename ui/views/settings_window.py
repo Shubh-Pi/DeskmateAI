@@ -410,15 +410,21 @@ class LanguagePanel(QWidget):
         self._en_radio = StyledRadio("English")
         self._hi_radio = StyledRadio("Hindi")
         self._mr_radio = StyledRadio("Marathi")
+        self._hinglish_radio = StyledRadio("Hinglish (Hindi+English)")
+        self._minglish_radio = StyledRadio("Minglish (Marathi+English)")
 
         self._lang_group.addButton(self._en_radio, 0)
         self._lang_group.addButton(self._hi_radio, 1)
         self._lang_group.addButton(self._mr_radio, 2)
+        self._lang_group.addButton(self._hinglish_radio, 3)
+        self._lang_group.addButton(self._minglish_radio, 4)
         self._en_radio.setChecked(True)
 
         layout.addWidget(self._en_radio)
         layout.addWidget(self._hi_radio)
         layout.addWidget(self._mr_radio)
+        layout.addWidget(self._hinglish_radio)
+        layout.addWidget(self._minglish_radio)
 
         layout.addSpacing(8)
 
@@ -519,6 +525,10 @@ class LanguagePanel(QWidget):
             self._hi_radio.setChecked(True)
         elif lang == 'mr':
             self._mr_radio.setChecked(True)
+        elif lang == 'hinglish':
+            self._hinglish_radio.setChecked(True)
+        elif lang == 'minglish':
+            self._minglish_radio.setChecked(True)
         else:
             self._en_radio.setChecked(True)
 
@@ -531,6 +541,10 @@ class LanguagePanel(QWidget):
             return 'hi', 'Hindi'
         elif self._mr_radio.isChecked():
             return 'mr', 'Marathi'
+        elif self._hinglish_radio.isChecked():
+            return 'hinglish', 'Hinglish'
+        elif self._minglish_radio.isChecked():
+            return 'minglish', 'Minglish'
         return 'en', 'English'
 
     def _test_wake_word(self):

@@ -30,7 +30,7 @@ DTYPE = 'float32'
 # Command recording settings
 COMMAND_MAX_DURATION = 8.0      # Max seconds for command
 COMMAND_MIN_DURATION = 0.5      # Min seconds before stopping
-SILENCE_THRESHOLD = 0.005        # RMS below = silence
+SILENCE_THRESHOLD = 0.012        # RMS below = silence
 SILENCE_DURATION = 1.0          # Seconds of silence to stop
 
 # Dictation recording settings
@@ -238,7 +238,6 @@ class MicStream:
                 time.sleep(frame_duration + 0.02)
                 sd.stop()
                 frame = frame.flatten()
-                audio_frames.append(frame)
                 frame_count += 1
 
                 # Calculate RMS
@@ -254,7 +253,11 @@ class MicStream:
                     if speech_detected:
                         silent_frame_count += 1
                         # print(f"[MIC] Silence: {silent_frame_count}/{silence_frames}")
-
+                
+                # Only keep frames once speech has begun
+                if speech_detected:
+                    audio_frames.append(frame)
+                    
                 # Stop conditions
                 if (speech_detected and
                     frame_count >= min_frames and

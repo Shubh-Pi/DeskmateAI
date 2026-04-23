@@ -3,7 +3,7 @@ import os
 
 zipf = zipfile.ZipFile('code_only.zip', 'w')
 
-EXCLUDE_DIRS = {'venv', 'models', 'data', 'logs', '__pycache__', '.git', '.cache'}
+EXCLUDE_DIRS = {'venv', 'models', 'data', 'logs', '__pycache__', '.git', '.cache', 'temp_convert_venv3'}
 
 for root, dirs, files in os.walk('.'):
     # 🔥 Skip heavy folders

@@ -265,7 +265,7 @@ class Pipeline:
             # ── Step 3: Transcribe ────────────────────────────
             # print("[PIPELINE] Step 3: Transcribing...")
             language = self.context.get_language()
-            transcription = self._speech_handler.transcribe(audio, language)
+            transcription = self._speech_handler.transcribe(audio, self._whisper_language(language))
 
             if not transcription or not transcription.strip():
                 # print("[PIPELINE] Empty transcription")
@@ -405,8 +405,7 @@ class Pipeline:
             language = self.context.get_language()
             # print(f"[PIPELINE] Transcribing dictation in: {language}")
 
-            dictated_text = self._speech_handler.transcribe(audio, language)
-
+            dictated_text = self._speech_handler.transcribe(audio, self._whisper_language(language))
             if not dictated_text or not dictated_text.strip():
                 # print("[PIPELINE] Empty dictation")
                 log_warning("Empty dictation received")
@@ -462,7 +461,14 @@ class Pipeline:
         return True
 
     # ── Language Update ───────────────────────────────────────
+    _MIXED_LANGUAGE_CODES = {'hinglish', 'minglish'}
 
+    def _whisper_language(self, lang_code):
+        """Convert app language code to Whisper language param.
+        Hinglish/Minglish pass None so Whisper auto-detects per segment."""
+        if lang_code in self._MIXED_LANGUAGE_CODES:
+            return None
+        return lang_code
     def update_language(self, language_code, language_name):
         """Update language mid-session"""
         # print(f"[PIPELINE] Updating language: {language_code}")
