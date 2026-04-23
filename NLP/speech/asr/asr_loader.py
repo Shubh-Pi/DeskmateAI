@@ -21,11 +21,11 @@ from backend.utils.utils import get_whisper_model_dir
 
 # ── Constants ─────────────────────────────────────────────────
 
-COMPUTE_TYPE = "int8"    # int8 quantization for low RAM
-DEVICE = "cpu"           # CPU only for compatibility
-NUM_WORKERS = 1          # Single worker for low spec
-CPU_THREADS = 4          # CPU threads for inference
-BEAM_SIZE = 5            # Beam size for transcription
+COMPUTE_TYPE = "float16" # float16 for GPU (faster than int8 on CUDA)
+DEVICE = "cuda"          # GPU acceleration
+NUM_WORKERS = 1          # Single worker
+CPU_THREADS = 4          # CPU threads (fallback)
+BEAM_SIZE = 1            # Greedy decoding for speed
 
 # ── Global lock — prevents two threads loading model at once ──
 _model_load_lock = threading.Lock()
@@ -82,12 +82,26 @@ class ASRLoader:
 
             try:
                 from faster_whisper import WhisperModel
+                import torch
 
-                # Load from local path directly
+                # Auto-detect GPU availability
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+                compute = "float16" if device == "cuda" else "int8"
+
+                if device == "cuda":
+                    log_info(f"GPU detected: {torch.cuda.get_device_name(0)} — using float16")
+                else:
+                    log_warning("GPU not available — falling back to CPU int8")
+
+                # Load medium multilingual model from HuggingFace
+                # Falls back to local path if available
+                model_source = self._model_dir if os.path.exists(self._model_dir) else "medium"
+                log_info(f"Loading model from: {model_source} | device={device} | compute={compute}")
+
                 self._model = WhisperModel(
-                    self._model_dir,      # ← your local model path
-                    device=DEVICE,
-                    compute_type=COMPUTE_TYPE,
+                    model_source,
+                    device=device,
+                    compute_type=compute,
                     num_workers=NUM_WORKERS,
                     cpu_threads=CPU_THREADS
                 )
@@ -118,10 +132,13 @@ class ASRLoader:
         return self._model_loaded and self._model is not None
 
     def get_model_info(self):
+        import torch
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        compute = "float16" if device == "cuda" else "int8"
         return {
             "model_path": self._model_dir,
-            "compute_type": COMPUTE_TYPE,
-            "device": DEVICE,
+            "compute_type": compute,
+            "device": device,
             "is_loaded": self.is_loaded(),
             "model_files": (
                 os.listdir(self._model_dir)

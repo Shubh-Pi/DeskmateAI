@@ -25,8 +25,8 @@ from backend.utils.logger import log_info, log_error, log_debug, log_warning
 # ── Constants ─────────────────────────────────────────────────
 
 SAMPLE_RATE = 16000
-BEAM_SIZE = 5          # Transcription beam size
-VAD_FILTER = True      # Use Whisper's built-in VAD
+BEAM_SIZE = 1# Transcription beam size
+VAD_FILTER = False    # Use Whisper's built-in VAD
 
 # ── Speech Handler Class ──────────────────────────────────────
 
@@ -39,6 +39,7 @@ class SpeechHandler:
         self._silence_trimmer = None
         self._normalizer = None
         self._model = None
+        self._prompt = None
         self._load_components()
         log_info("SpeechHandler initialized")
 
@@ -147,38 +148,51 @@ class SpeechHandler:
         Returns preprocessed audio
         """
         # print("[SPEECH] Preprocessing audio...")
-        log_debug("Preprocessing audio")
+        # log_debug("Preprocessing audio")
 
-        if audio is None or len(audio) == 0:
-            return audio
+        # if audio is None or len(audio) == 0:
+        #     return audio
 
-        try:
-            # Step 1: Noise reduction
-            if self._noise_reducer:
-                audio = self._noise_reducer.smart_reduce(audio, SAMPLE_RATE)
-                # print("[SPEECH] ✅ Noise reduced")
+        # try:
+        #     # Step 1: Noise reduction
+        #     if self._noise_reducer:
+        #         audio = self._noise_reducer.smart_reduce(audio, SAMPLE_RATE)
+        #         # print("[SPEECH] ✅ Noise reduced")
 
-            # Step 2: Silence trim
-            if self._silence_trimmer:
-                audio = self._silence_trimmer.full_process(audio, SAMPLE_RATE)
-                # print("[SPEECH] ✅ Silence trimmed")
+        #     # Step 2: Silence trim
+        #     if self._silence_trimmer:
+        #         audio = self._silence_trimmer.full_process(audio, SAMPLE_RATE)
+        #         # print("[SPEECH] ✅ Silence trimmed")
 
-            # Step 3: Normalize
-            if self._normalizer:
-                audio = self._normalizer.prepare_for_whisper(audio, SAMPLE_RATE)
-                # print("[SPEECH] ✅ Audio normalized")
+        #     # Step 3: Normalize
+        #     if self._normalizer:
+        #         audio = self._normalizer.prepare_for_whisper(audio, SAMPLE_RATE)
+        #         # print("[SPEECH] ✅ Audio normalized")
 
-            # print("[SPEECH] ✅ Preprocessing complete")
-            log_debug("Audio preprocessing complete")
-            return audio
+        #     # print("[SPEECH] ✅ Preprocessing complete")
+        #     log_debug("Audio preprocessing complete")
+        #     return audio
 
-        except Exception as e:
-            # print(f"[SPEECH] Preprocessing error: {e}")
-            log_error(f"Audio preprocessing error: {e}")
-            return audio
+        # except Exception as e:
+        #     # print(f"[SPEECH] Preprocessing error: {e}")
+        #     log_error(f"Audio preprocessing error: {e}")
+        return audio
 
     # ── Transcribe ────────────────────────────────────────────
-
+    def _get_initial_prompt(self):
+        if self._prompt is not None:
+            return self._prompt
+        try:
+            from NLP.nlp.intent_pipeline import get_intent_pipeline
+            pipeline = get_intent_pipeline()
+            examples = []
+            for intent, example_list in pipeline._sbert._intent_examples.items():
+                if example_list:
+                    examples.append(example_list[0])
+            self._prompt = ". ".join(examples[:20])
+            return self._prompt
+        except:
+            return None
     def transcribe(self, audio, language='en'):
         """
         Transcribe audio to text using Whisper small
@@ -203,14 +217,14 @@ class SpeechHandler:
                 return ""
 
             # Check has speech
-            if self._silence_trimmer:
-                has_speech = self._silence_trimmer.has_speech(
-                    processed_audio, SAMPLE_RATE
-                )
-                if not has_speech:
-                    # print("[SPEECH] No speech detected in audio")
-                    log_warning("No speech detected")
-                    return ""
+            # if self._silence_trimmer:
+            #     has_speech = self._silence_trimmer.has_speech(
+            #         processed_audio, SAMPLE_RATE
+            #     )
+            #     if not has_speech:
+            #         # print("[SPEECH] No speech detected in audio")
+            #         log_warning("No speech detected")
+            #         return ""
 
             # Get model
             model = self._get_model()
@@ -232,40 +246,16 @@ class SpeechHandler:
             start_time = time.time()
 
             # ── NEW CODE ──────────────────────────────────────
-            # First detect language
-            _, detect_info = model.transcribe(
-                temp_path,
-                beam_size=1,
-                language=None  # auto-detect
-            )
-
-            detected_lang = detect_info.language
-            detected_prob = detect_info.language_probability
-
-            # print(f"[SPEECH] Detected: {detected_lang} ({detected_prob:.2f})")
-            log_debug(f"Language detected: {detected_lang} ({detected_prob:.2f})")
-
-            # Use detected language if high confidence
-            # Otherwise fall back to user's set language
-            DETECTION_THRESHOLD = 0.85
-
-            if detected_prob >= DETECTION_THRESHOLD:
-                use_language = detected_lang
-                # print(f"[SPEECH] Using detected: {use_language}")
-            else:
-                use_language = language
-                # print(f"[SPEECH] Using settings language: {use_language}")
-
-            # Transcribe with correct language
             segments, info = model.transcribe(
                 temp_path,
-                language=use_language,
+                language=language,
                 beam_size=BEAM_SIZE,
                 vad_filter=VAD_FILTER,
                 vad_parameters=dict(
                     min_silence_duration_ms=500,
                     speech_pad_ms=200
                 ),
+                initial_prompt=self._get_initial_prompt(),
                 word_timestamps=False,
                 condition_on_previous_text=False
             )

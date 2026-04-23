@@ -532,12 +532,15 @@ class UIController(QObject):
         if self._dashboard_window:
             from datetime import datetime
             time_str = datetime.now().strftime("%I:%M %p")
-            self._dashboard_window.add_command(
-                intent.replace('_', ' ').title(),
-                intent,
-                success,
-                time_str
+            try:
+                self._dashboard_window.add_command(
+                    intent.replace('_', ' ').title(),
+                    intent,
+                    success,
+                    time_str
             )
+            except RuntimeError:
+                pass 
 
     def _on_audio_level(self, level):
         """Update waveform with audio level"""

@@ -20,7 +20,7 @@ from backend.utils.logger import log_info, log_error, log_debug, log_warning
 # ── Constants ─────────────────────────────────────────────────
 
 TARGET_SAMPLE_RATE = 16000    # Whisper expects 16kHz
-TARGET_RMS = 0.1              # Target RMS level
+TARGET_RMS = 0.3              # Target RMS level
 MAX_AMPLITUDE = 0.95          # Prevent clipping
 MIN_AMPLITUDE = 0.001         # Minimum meaningful amplitude
 
@@ -122,28 +122,25 @@ class AudioNormalizer:
         Normalize audio amplitude to target RMS
         Ensures consistent volume for ASR
         """
-        # print("[NORMALIZE] Normalizing amplitude...")
         try:
             rms = np.sqrt(np.mean(np.square(audio)))
 
             if rms < MIN_AMPLITUDE:
-                # print(f"[NORMALIZE] Audio too quiet: {rms:.6f}")
                 log_warning(f"Audio very quiet: {rms:.6f}")
                 return audio
 
             # Scale to target RMS
             scale = TARGET_RMS / rms
+            # Cap at 10x to prevent distortion
+            scale = min(scale, 10.0)
             normalized = audio * scale
 
-            # print(f"[NORMALIZE] ✅ Amplitude normalized: {rms:.4f} → {TARGET_RMS}")
-            log_debug(f"Amplitude: {rms:.4f} → {TARGET_RMS}")
+            log_debug(f"Amplitude: {rms:.4f} → {TARGET_RMS} (scale: {scale:.2f}x)")
             return normalized
 
         except Exception as e:
-            # print(f"[NORMALIZE] Amplitude normalization error: {e}")
             log_error(f"Amplitude normalization error: {e}")
             return audio
-
     def _prevent_clipping(self, audio):
         """
         Prevent audio clipping

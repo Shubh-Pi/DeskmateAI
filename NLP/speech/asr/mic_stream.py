@@ -30,8 +30,8 @@ DTYPE = 'float32'
 # Command recording settings
 COMMAND_MAX_DURATION = 8.0      # Max seconds for command
 COMMAND_MIN_DURATION = 0.5      # Min seconds before stopping
-SILENCE_THRESHOLD = 0.01        # RMS below = silence
-SILENCE_DURATION = 1.2          # Seconds of silence to stop
+SILENCE_THRESHOLD = 0.005        # RMS below = silence
+SILENCE_DURATION = 1.0          # Seconds of silence to stop
 
 # Dictation recording settings
 DICTATION_MAX_DURATION = 30.0   # Max seconds for dictation

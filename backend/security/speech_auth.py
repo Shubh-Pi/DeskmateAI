@@ -33,7 +33,7 @@ from backend.utils.utils import (
 # ── Constants ─────────────────────────────────────────────────
 
 SPEAKER_SAMPLES_REQUIRED = 3
-SPEAKER_SIMILARITY_THRESHOLD = 0.75  # Higher = stricter
+SPEAKER_SIMILARITY_THRESHOLD = 0.55  # Higher = stricter
 VOICE_PASS_THRESHOLD = 0.70
 SAMPLE_RATE = 16000
 RECORD_DURATION_SPEAKER = 5   # seconds for speaker profile
@@ -55,7 +55,10 @@ class SpeechAuth:
         # print("[SPEECH_AUTH] Loading Resemblyzer encoder...")
         try:
             from resemblyzer import VoiceEncoder
-            self._encoder = VoiceEncoder()
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            self._encoder = VoiceEncoder(device=device)
+            log_info(f"Resemblyzer encoder on: {device}")
             # print("[SPEECH_AUTH] ✅ Resemblyzer encoder loaded")
             log_info("Resemblyzer encoder loaded")
         except Exception as e:
@@ -297,7 +300,8 @@ class SpeechAuth:
 
             # print(f"[SPEECH_AUTH] Best similarity: {best_similarity:.4f} | Threshold: {SPEAKER_SIMILARITY_THRESHOLD}")
             authorized = best_similarity >= SPEAKER_SIMILARITY_THRESHOLD
-
+            log_info(f"Best similarity: {best_similarity:.4f} | Threshold: {SPEAKER_SIMILARITY_THRESHOLD}")
+            
             if authorized:
                 # print(f"[SPEECH_AUTH] ✅ Speaker verified: {username}")
                 log_debug(f"Speaker verified: {username}")

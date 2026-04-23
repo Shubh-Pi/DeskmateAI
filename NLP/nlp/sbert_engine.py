@@ -64,6 +64,13 @@ class SBERTEngine:
                 self._model = SentenceTransformer(SBERT_MODEL)
                 self._model.save(SBERT_MODEL_PATH)
                 # print(f"[SBERT] ✅ Model saved to: {SBERT_MODEL_PATH}")
+
+            # Move to GPU if available
+            import torch
+            if torch.cuda.is_available():
+                self._model = self._model.to("cuda")
+                log_info("SBERT moved to GPU")
+
             self._model_loaded = True
             # print(f"[SBERT] ✅ SBERT model loaded: {SBERT_MODEL}")
             log_info(f"SBERT model loaded: {SBERT_MODEL}")
