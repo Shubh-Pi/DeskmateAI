@@ -147,36 +147,36 @@ class SpeechHandler:
         3. Normalize for Whisper
         Returns preprocessed audio
         """
-        # print("[SPEECH] Preprocessing audio...")
-        # log_debug("Preprocessing audio")
+        print("[SPEECH] Preprocessing audio...")
+        log_debug("Preprocessing audio")
 
-        # if audio is None or len(audio) == 0:
-        #     return audio
+        if audio is None or len(audio) == 0:
+            return audio
 
-        # try:
-        #     # Step 1: Noise reduction
-        #     if self._noise_reducer:
-        #         audio = self._noise_reducer.smart_reduce(audio, SAMPLE_RATE)
-        #         # print("[SPEECH] ✅ Noise reduced")
+        try:
+            # Step 1: Noise reduction
+            if self._noise_reducer:
+                audio = self._noise_reducer.smart_reduce(audio, SAMPLE_RATE)
+                # print("[SPEECH] ✅ Noise reduced")
 
-        #     # Step 2: Silence trim
-        #     if self._silence_trimmer:
-        #         audio = self._silence_trimmer.full_process(audio, SAMPLE_RATE)
-        #         # print("[SPEECH] ✅ Silence trimmed")
+            # Step 2: Silence trim
+            if self._silence_trimmer:
+                audio = self._silence_trimmer.full_process(audio, SAMPLE_RATE)
+                # print("[SPEECH] ✅ Silence trimmed")
 
-        #     # Step 3: Normalize
-        #     if self._normalizer:
-        #         audio = self._normalizer.prepare_for_whisper(audio, SAMPLE_RATE)
-        #         # print("[SPEECH] ✅ Audio normalized")
+            # Step 3: Normalize
+            if self._normalizer:
+                audio = self._normalizer.prepare_for_whisper(audio, SAMPLE_RATE)
+                # print("[SPEECH] ✅ Audio normalized")
 
-        #     # print("[SPEECH] ✅ Preprocessing complete")
-        #     log_debug("Audio preprocessing complete")
-        #     return audio
+            # print("[SPEECH] ✅ Preprocessing complete")
+            log_debug("Audio preprocessing complete")
+            return audio
 
-        # except Exception as e:
-        #     # print(f"[SPEECH] Preprocessing error: {e}")
-        #     log_error(f"Audio preprocessing error: {e}")
-        return audio
+        except Exception as e:
+            # print(f"[SPEECH] Preprocessing error: {e}")
+            log_error(f"Audio preprocessing error: {e}")
+            return audio
 
     # ── Transcribe ────────────────────────────────────────────
     def _get_initial_prompt(self):
